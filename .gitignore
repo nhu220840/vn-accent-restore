@@ -1,13 +1,27 @@
-#local environment
-.venv
-requirements.txt
-#code not good
-5_app
-extract_features_no_aug.py
-mediapipe_Holistic_convert.py
-Single_image_test.py
+# #local environment
+# .venv
+# requirements.txt
+# #code not good
+# 5_app
+# extract_features_no_aug.py
+# mediapipe_Holistic_convert.py
+# Single_image_test.py
 
-#data
-1_data/raw/data_mini_app_01/train/*
-1_data/raw/data_mini_app_01/valid/*
-1_data/raw/data_mini_app_01/test/*
+# #data
+# 1_data/
+
+# Bỏ qua toàn bộ dữ liệu
+1_data/
+2_src/
+3_notebook/
+4_models/
+5_app/
+
+# Bỏ qua các file model đã train
+*.pkl
+*.pth
+
+# Bỏ qua môi trường ảo và cache
+.venv/
+venv/
+__pycache__/

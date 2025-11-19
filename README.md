@@ -6,3 +6,9 @@ pip install --timeout=300 "opencv-python<4.10"
 pip install --timeout=300 "scikit-learn<1.5" "scipy<1.13"
 pip install --timeout=300 "seaborn==0.12.2"
 
+Preprocess:
+2_src/main_mediapipe_convert
+Train
+new_model.py
+Evaluation
+

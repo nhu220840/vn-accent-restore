@@ -22,9 +22,9 @@ import matplotlib.pyplot as plt
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # --- Tạo đường dẫn tuyệt đối đến các file data ---
-train_path = os.path.join(script_dir, r'..\1_data\processed\train.csv')
-valid_path = os.path.join(script_dir, r'..\1_data\processed\valid.csv')
-test_path = os.path.join(script_dir, r'..\1_data\processed\test.csv')
+train_path = os.path.join(script_dir, r'..\1_data\processed\train_landmarks_augmented.csv')
+valid_path = os.path.join(script_dir, r'..\1_data\processed\valid_landmarks.csv')
+test_path = os.path.join(script_dir, r'..\1_data\processed\test_landmarks.csv')
 
 # --- Đọc dữ liệu bằng đường dẫn mới ---
 df_train = pd.read_csv(train_path)

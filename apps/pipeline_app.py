@@ -11,8 +11,8 @@ from PIL import Image, ImageDraw, ImageFont
 import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(script_dir)
-sys.path.insert(0, os.path.join(project_root, 'src'))
-from utils.vn_accent_restore import restore_diacritics
+sys.path.insert(0, project_root)
+from src.utils.vn_accent_restore import restore_diacritics
 
 # --- CẤU HÌNH ĐƯỜNG DẪN ---
 SCALER_PATH = os.path.join(project_root, 'models', 'scaler.pkl')

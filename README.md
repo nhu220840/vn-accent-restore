@@ -279,7 +279,7 @@ Contributions are welcome! Please:
 
 MIT License. See [LICENSE](LICENSE) for details. -->
 
----
+<!-- --- -->
 
 ## Contact
 

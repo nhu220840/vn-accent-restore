@@ -113,7 +113,9 @@ def process_dataset(json_path, image_dir, is_training=False):
 
 # --- PART 3: DEFINE PATHS & RUN ---
 print(f"\nCurrent working directory: {os.getcwd()}")
-base_data_directory = os.path.join("1_data", "raw", "data_mini_app_01")
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(os.path.dirname(script_dir))
+base_data_directory = os.path.join(project_root, "data", "raw", "data_mini_app_01")
 print(f"Base data directory: {base_data_directory}") 
 
 # Train paths
@@ -174,7 +176,7 @@ print("[Completed] Finished filtering 'DD' label.")
 # === END OF CHANGE 2 ===
 
 
-output_dir = os.path.join("1_data", "processed")
+output_dir = os.path.join(project_root, "data", "processed")
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
     print(f"\nCreated directory: {output_dir}")

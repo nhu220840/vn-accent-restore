@@ -1,0 +1,23 @@
+# Core dependencies
+numpy<2.0
+pandas
+opencv-python<4.10
+mediapipe
+
+# Machine Learning
+scikit-learn<1.5
+scipy<1.13
+joblib
+
+# Data Augmentation
+albumentations
+
+# Visualization
+seaborn==0.12.2
+matplotlib
+
+# Vietnamese Accent Restoration (for pipeline_app.py)
+torch
+transformers
+Pillow
+

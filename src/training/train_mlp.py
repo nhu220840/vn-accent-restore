@@ -9,10 +9,11 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(os.path.dirname(script_dir))
 
-train_path = os.path.join(script_dir, r'..\1_data\processed\train_landmarks_augmented.csv')
-valid_path = os.path.join(script_dir, r'..\1_data\processed\valid_landmarks.csv')
-test_path = os.path.join(script_dir, r'..\1_data\processed\test_landmarks.csv')
+train_path = os.path.join(project_root, 'data', 'processed', 'train_landmarks_augmented.csv')
+valid_path = os.path.join(project_root, 'data', 'processed', 'valid_landmarks.csv')
+test_path = os.path.join(project_root, 'data', 'processed', 'test_landmarks.csv')
 
 df_train = pd.read_csv(train_path)
 df_valid = pd.read_csv(valid_path)
@@ -64,8 +65,8 @@ test_preds = best_model.predict(X_test_scaled)
 test_acc = accuracy_score(y_test, test_preds)
 print(f"\nAccuracy (TEST): {test_acc * 100:.2f}%")
 
-MODEL_PATH = os.path.join(script_dir, r'..\4_models\model_mlp.pkl')
-SCALER_PATH = os.path.join(script_dir, r'..\4_models\scaler.pkl')
+MODEL_PATH = os.path.join(project_root, 'models', 'model_mlp.pkl')
+SCALER_PATH = os.path.join(project_root, 'models', 'scaler.pkl')
 
 joblib.dump(best_model, MODEL_PATH)
 joblib.dump(scaler, SCALER_PATH)

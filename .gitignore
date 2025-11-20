@@ -1,41 +1,46 @@
-#local environment
-.venv
-requirements.txt
-#code not good
-5_app/app.py
-5_app/main_app_comment.py
-5_app/test.py
-5_app/Test_cam_pc.py
-5_app/index.html
-Code_cua_Chung/run.py
-extract_features_no_aug.py
-mediapipe_Holistic_convert.py
-Single_image_test.py
+# Local environment
+.venv/
+venv/
+env/
+ENV/
 
-#data
-1_data/raw/
+# Data (raw data should not be committed)
+data/raw/
 
-#2_src
-2_src/data_loader.py
-2_src/model.py
-2_src/train.py
-2_src/Single_image_test.py
-2_src/extract_features_no_aug.py
-2_src/mediapipe_Holistic_convert.py
-2_src/mediapipe_Holistic_convert1.py
-2_src/Linear Regression.py
-2_src/Gaussian Naive Bayers.py
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
 
-#3_notebooks
-3_notebooks/
+# Models (large files, should use Git LFS if needed)
+# Uncomment if you want to ignore models
+# models/*.pkl
 
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# # Bỏ qua toàn bộ dữ liệu
-# 1_data/
-# 2_src/
-# 3_notebooks/
-# 4_models/
-# 5_app/
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Temporary files
+*.tmp
+*.log
 
 # # Bỏ qua các file model đã train
 # *.pkl

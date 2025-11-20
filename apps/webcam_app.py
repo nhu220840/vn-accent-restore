@@ -4,10 +4,18 @@ import mediapipe as mp
 import numpy as np
 import time
 
+import os
+
 print("Loading model and scaler... (please wait)")
 try:
-    scaler = joblib.load(r'4_models\scaler.pkl')
-    model = joblib.load(r'4_models\model_mlp.pkl')
+    # Cross-platform path handling
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(script_dir)
+    scaler_path = os.path.join(project_root, 'models', 'scaler.pkl')
+    model_path = os.path.join(project_root, 'models', 'model_mlp.pkl')
+    
+    scaler = joblib.load(scaler_path)
+    model = joblib.load(model_path)
     
     MODEL_CLASSES = model.classes_
     N_CLASSES = len(MODEL_CLASSES)

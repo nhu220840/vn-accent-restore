@@ -5,65 +5,143 @@ import numpy as np
 import time
 import os
 import threading
+import sys
 from PIL import Image, ImageDraw, ImageFont
 
-# Import module thêm dấu
-import sys
-script_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(script_dir)
-sys.path.insert(0, project_root)
-from src.utils.vn_accent_restore import restore_diacritics
+# --- CẤU HÌNH PATH ---
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 
-# --- CẤU HÌNH ĐƯỜNG DẪN ---
-SCALER_PATH = os.path.join(project_root, 'models', 'scaler.pkl')
-MODEL_PATH = os.path.join(project_root, 'models', 'model_mlp.pkl')
+# Thêm project root vào sys.path
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+# Import module thêm dấu
+try:
+    from src.utils.vn_accent_restore import restore_diacritics
+except ImportError as e:
+    print(f"Import Error: {e}")
+    print("Please run from the project root.")
+    exit()
+
+# --- CẤU HÌNH ĐƯỜNG DẪN MODEL ---
+SCALER_PATH = os.path.join(PROJECT_ROOT, 'models', 'scaler.pkl')
+MODEL_PATH = os.path.join(PROJECT_ROOT, 'models', 'model_mlp.pkl')
 
 # --- BIẾN TOÀN CỤC ---
 final_sentence = ""
 is_processing_accent = False
+cached_font_path = None  # Biến để lưu đường dẫn font sau khi tìm thấy
 
-# --- HÀM VẼ CHỮ TIẾNG VIỆT ---
+# --- [MỚI] HÀM TỰ ĐỘNG TÌM FONT TIẾNG VIỆT ---
+def find_best_font_path():
+    """
+    Hàm này tự động quét hệ thống để tìm font hỗ trợ tiếng Việt.
+    """
+    global cached_font_path
+    if cached_font_path and os.path.exists(cached_font_path):
+        return cached_font_path
+
+    # 1. Ưu tiên tìm file font.ttf ngay trong thư mục dự án
+    local_paths = [
+        "font.ttf",
+        os.path.join(SCRIPT_DIR, "font.ttf"),
+        os.path.join(PROJECT_ROOT, "font.ttf"),
+    ]
+    for path in local_paths:
+        if os.path.exists(path):
+            print(f"[Font] Found local font: {path}")
+            cached_font_path = path
+            return path
+
+    # 2. Quét các thư mục font hệ thống của Ubuntu
+    print("[Font] Scanning system for Vietnamese fonts...")
+    
+    # Danh sách font ưu tiên (hỗ trợ tiếng Việt tốt)
+    target_fonts = [
+        'Roboto-Regular.ttf', 
+        'DejaVuSans.ttf', 
+        'Ubuntu-R.ttf',
+        'LiberationSans-Regular.ttf',
+        'Arial.ttf',
+        'FreeSans.ttf'
+    ]
+    
+    # Các thư mục font chuẩn trên Linux
+    system_font_dirs = [
+        '/usr/share/fonts', 
+        '/usr/local/share/fonts', 
+        os.path.expanduser('~/.fonts')
+    ]
+    
+    for font_dir in system_font_dirs:
+        if not os.path.exists(font_dir): continue
+        # Dùng os.walk để tìm sâu trong thư mục con
+        for root, _, files in os.walk(font_dir):
+            for filename in files:
+                if filename in target_fonts:
+                    found_path = os.path.join(root, filename)
+                    print(f"[Font] Found system font: {found_path}")
+                    cached_font_path = found_path
+                    return found_path
+
+    print("[Font] Warning: No specific Vietnamese font found. Using default.")
+    return None
+
+def get_font(size=30):
+    font_path = find_best_font_path()
+    if font_path:
+        try:
+            return ImageFont.truetype(font_path, size)
+        except Exception:
+            pass
+    return ImageFont.load_default()
+
+# --- HÀM VẼ CHỮ (SỬ DỤNG FONT TÌM ĐƯỢC) ---
 def draw_vn_text(img, text, pos, font_size=30, color=(255, 255, 255)):
     img_pil = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     draw = ImageDraw.Draw(img_pil)
-    try:
-        font_path = "/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf"
-        if not os.path.exists(font_path):
-            font_path = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
-        font = ImageFont.truetype(font_path, font_size)
-    except Exception:
-        font = ImageFont.load_default()
     
-    draw.text(pos, text, font=font, fill=color)
+    font = get_font(font_size)
+    
+    # Thêm viền đen (stroke) để chữ dễ đọc hơn
+    stroke_color = (0, 0, 0)
+    stroke_width = 2
+    
+    draw.text(pos, text, font=font, fill=color, stroke_width=stroke_width, stroke_fill=stroke_color)
     return cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
 
 def process_accent_async(raw_text):
     global final_sentence, is_processing_accent
     is_processing_accent = True
     try:
-        # Chuẩn hóa input trước khi đưa vào model thêm dấu
+        # Chuẩn hóa input
         raw_text_lower = raw_text.lower().strip()
-        print(f"Dang them dau cho: {raw_text_lower}")
+        print(f"Adding accents for: {raw_text_lower}")
         
         restored = restore_diacritics(raw_text_lower)
         
-        # Chuẩn hóa output: Viết hoa chữ cái đầu
+        # Chuẩn hóa output
         final_sentence = restored.capitalize()
         
     except Exception as e:
-        print(f"Lỗi thêm dấu: {e}")
+        print(f"Error adding accents: {e}")
         final_sentence = "Error!"
     finally:
         is_processing_accent = False
 
 # --- LOAD MODEL ---
-print("Đang tải model Gesture và Scaler...")
+print("Loading Gesture Model and Scaler...")
+if not os.path.exists(SCALER_PATH) or not os.path.exists(MODEL_PATH):
+    print(f"ERROR: Model files not found at {MODEL_PATH}")
+    exit()
+
 try:
     scaler = joblib.load(SCALER_PATH)
     model = joblib.load(MODEL_PATH)
-    print("Load model Gesture thành công!")
+    print("Model loaded successfully!")
 except Exception as e:
-    print(f"Lỗi load model Gesture: {e}")
+    print(f"Error loading model: {e}")
     exit()
 
 # --- SETUP MEDIAPIPE ---
@@ -90,6 +168,10 @@ was_hand_present = False
 # --- MAIN LOOP ---
 WINDOW_NAME = 'Gesture Pipeline'
 cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+
+# Tìm font 1 lần khi khởi động để cache
+print("Initializing font system...")
+find_best_font_path()
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -126,10 +208,9 @@ while cap.isOpened():
                 probabilities = model.predict_proba(scaled_data)[0]
                 
                 if np.max(probabilities) >= CONFIDENCE_THRESHOLD:
-                    # === SỬA ĐỔI 1: LUÔN CHUYỂN VỀ CHỮ THƯỜNG NGAY KHI NHẬN DIỆN ===
                     detected_label = str(prediction).lower()
                     
-                    # Hiển thị nhãn đang nhận diện (viết hoa cho dễ nhìn)
+                    # Hiển thị nhãn đang nhận diện
                     cv2.putText(image_bgr, f"{detected_label.upper()}: {np.max(probabilities):.2f}", 
                                (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
 
@@ -138,7 +219,7 @@ while cap.isOpened():
         if current_sequence_raw and current_sequence_raw[-1] != " ":
             current_sequence_raw.append(" ")
             print("Hand removed -> Added SPACE")
-            cv2.putText(image_bgr, "SPACE ADDED", (frame_w // 2 - 100, frame_h // 2), 
+            cv2.putText(image_bgr, "SPACE ADDED", (frame_w // 2 - 150, frame_h // 2), 
                         cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 3)
 
     was_hand_present = is_hand_present
@@ -163,29 +244,29 @@ while cap.isOpened():
     else:
         last_stable_prediction = None
 
-    # 4. HIỂN THỊ UI (ĐÃ CHUẨN HÓA FORMAT)
+    # 4. HIỂN THỊ UI (GIỮ NGUYÊN TIẾNG ANH, DÙNG HÀM VẼ FONT XỊN)
     ui_height = 120
     cv2.rectangle(image_bgr, (0, frame_h - ui_height), (frame_w, frame_h), (30, 30, 30), -1)
 
-    # === SỬA ĐỔI 2: CHUẨN HÓA HIỂN THỊ RAW (Viết hoa chữ cái đầu) ===
     raw_text_combined = "".join(current_sequence_raw).strip()
     if raw_text_combined:
-        # Viết hoa chữ cái đầu tiên
         raw_text_display = raw_text_combined[0].upper() + raw_text_combined[1:]
     else:
         raw_text_display = ""
         
+    # Dùng draw_vn_text cho dòng Raw (đề phòng model trả về từ có dấu)
     image_bgr = draw_vn_text(image_bgr, f"Raw: {raw_text_display}", (20, frame_h - 80), font_size=30, color=(200, 200, 200))
 
-    # === SỬA ĐỔI 3: HIỂN THỊ FINAL (Đã được capitalize trong hàm process) ===
+    # Dòng Final: Đây là nơi quan trọng nhất cần hiển thị tiếng Việt
     final_display = f"Final: {final_sentence}"
     if is_processing_accent:
-        final_display = "Final: Dang xu ly..."
+        final_display = "Final: Processing..."
     
     image_bgr = draw_vn_text(image_bgr, final_display, (20, frame_h - 40), font_size=35, color=(0, 255, 0))
 
-    cv2.putText(image_bgr, "'f': Fix Accents | 'c': Clear | 'q': Quit", (10, 20),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+    # Hướng dẫn (Tiếng Anh)
+    guide_text = "'f': Fix Accents | 'c': Clear | 'q': Quit"
+    cv2.putText(image_bgr, guide_text, (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
     cv2.imshow(WINDOW_NAME, image_bgr)
 

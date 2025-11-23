@@ -194,50 +194,6 @@ python apps/pipeline_app.py
 
 **Note:** Accent restoration uses DistilBERT model and may take a few seconds to process.
 
-## 🔍 Troubleshooting
-
-### Error: JSON file not found
-
-**Solution:**
-- Check path in `src/data_processing/mediapipe_converter.py`
-- Ensure `_annotations.coco.json` exists in train/valid/test directories
-
-### Error: MediaPipe import failed
-
-**Solution:**
-```bash
-pip install --upgrade mediapipe
-```
-
-### Error: Model not found
-
-**Solution:**
-- Check if `model_mlp.pkl` and `scaler.pkl` exist in `models/`
-- Run training script first: `python src/training/train_mlp.py`
-
-### Error: Webcam not working
-
-**Solution:**
-- Check webcam connection
-- Close other applications using webcam
-- Try changing `cv2.VideoCapture(0)` to `cv2.VideoCapture(1)` if multiple cameras
-
-### Error: OpenCV window not displaying (Linux)
-
-**Solution:**
-```bash
-sudo apt-get install libgtk2.0-dev pkg-config
-pip uninstall opencv-python
-pip install opencv-python
-```
-
-### Error: Memory Error during training
-
-**Solution:**
-- Reduce `N_AUGMENTATIONS_PER_IMAGE` in `src/data_processing/mediapipe_converter.py`
-- Reduce number of training images
-- Use machine with more RAM
-
 ## 📝 Complete Workflow
 
 ```bash

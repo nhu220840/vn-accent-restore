@@ -215,22 +215,6 @@ python apps/webcam_app.py
 # or
 python apps/pipeline_app.py
 ```
-
-## 📚 References
-
-- [MediaPipe Documentation](https://mediapipe.dev/)
-- [scikit-learn Documentation](https://scikit-learn.org/)
-- [OpenCV Documentation](https://opencv.org/)
-
-## 👥 Contributing
-
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
 <!-- ## 📄 License
 
 MIT License. See [LICENSE](LICENSE) for details. -->

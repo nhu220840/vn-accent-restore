@@ -1,6 +1,23 @@
-# Gesture2Text Model
+# Gesture2Text (G2T) Module for VSL Platform
 
 A hand gesture recognition system that converts hand gestures to text using MediaPipe and Machine Learning.
+
+## Project Context
+
+This repository is part of the larger **VSL Platform** project, an integrated platform that includes frontend, backend, and AI components.
+
+Within that larger project, **Gesture2Text (G2T)** is the module I contributed to.  
+My work focuses on the AI model pipeline for recognizing hand gestures and converting them into text.
+
+## Repository Links
+
+- **Main VSL Platform project**: [VSL Platform Integrated Project](https://github.com/Vnptcq/vsl-platform-integrated-ai-model)
+- **G2T module**: [vsl-platform-ai-model](https://github.com/Vnptcq/vsl-platform-integrated-ai-model/tree/master/vsl-platform-ai-model)
+
+This README documents the **G2T / AI model part** of the overall VSL Platform project so readers can:
+- understand my specific contribution,
+- explore the full platform architecture,
+- and follow the larger project context.
 
 ## 🚀 Quick Start
 
